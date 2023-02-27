@@ -4,7 +4,7 @@
 
 
 import json
-from typing import Any, Iterable, Mapping
+from typing import Any, Dict, Iterable, Mapping, Optional
 from uuid import uuid4
 
 import boto3
@@ -37,8 +37,12 @@ class DestinationAmazonSqs(Destination):
 
         return message
 
-    def add_attributes_to_message(self, record, message):
+    def add_attributes_to_message(self, record, message, additional_attributes: Optional[Dict[str, str]] = None):
         attributes = {"airbyte_emitted_at": {"StringValue": str(record.emitted_at), "DataType": "String"}}
+
+        if additional_attributes:
+            attributes.update(additional_attributes)
+
         message["MessageAttributes"] = attributes
         return message
 
@@ -104,8 +108,17 @@ class DestinationAmazonSqs(Destination):
         queue = sqs.Queue(url=queue_url)
 
         # TODO: Make access/secret key optional, support public access & profiles
-        # TODO: Support adding/setting attributes in the UI
         # TODO: Support extract a specific path as message attributes
+
+        # If specified, construct additional attributes to attach to each message
+        message_metadata = config.get("message_metadata")
+        if message_metadata:
+            custom_attributes = {
+                attribute["name"]: {"StringValue": attribute["value"], "DataType": "String"}
+                for attribute in message_metadata
+            }
+        else:
+            custom_attributes = None
 
         for message in input_messages:
             if message.type == Type.RECORD:
@@ -114,7 +127,7 @@ class DestinationAmazonSqs(Destination):
                 if message_delay:
                     sqs_message = self.set_message_delay(sqs_message, message_delay)
 
-                sqs_message = self.add_attributes_to_message(message.record, sqs_message)
+                sqs_message = self.add_attributes_to_message(message.record, sqs_message, custom_attributes)
 
                 if self.queue_is_fifo(queue_url):
                     use_content_dedupe = False if queue.attributes.get("ContentBasedDeduplication") == "false" else "true"
