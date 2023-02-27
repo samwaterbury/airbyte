@@ -87,6 +87,30 @@
         "type": "string",
         "examples": ["my-fifo-group"],
         "order": 6
+      },
+      "message_metadata": {
+        "title": "Message Metadata",
+        "description": "Custom message attributes to be attached to all messages sent to the queue.",
+        "order": 7,
+        "type": "array",
+        "items": {
+          "title": "MessageAttribute",
+          "description": "String SQS message attribute.",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "description": "Name of the message attribute.",
+              "type": "string"
+            },
+            "value": {
+              "title": "Value",
+              "description": "Value of the message attribute.",
+              "type": "string"
+            }
+          }
+        },
+        "required": ["name", "value"]
       }
     }
   }
