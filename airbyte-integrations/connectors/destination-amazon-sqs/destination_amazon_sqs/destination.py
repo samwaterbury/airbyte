@@ -4,6 +4,7 @@
 
 
 import json
+import os
 from typing import Any, Dict, Iterable, Mapping, Optional
 from uuid import uuid4
 
@@ -103,8 +104,11 @@ class DestinationAmazonSqs(Destination):
         access_key = config["access_key"]
         secret_key = config["secret_key"]
 
+        # If not specified, `None` will cause boto3 to use the default endpoint
+        endpoint_url = config.get("endpoint_url")
+
         session = boto3.Session(aws_access_key_id=access_key, aws_secret_access_key=secret_key, region_name=queue_region)
-        sqs = session.resource("sqs")
+        sqs = session.resource("sqs",  endpoint_url=endpoint_url)
         queue = sqs.Queue(url=queue_url)
 
         # TODO: Make access/secret key optional, support public access & profiles
@@ -151,9 +155,13 @@ class DestinationAmazonSqs(Destination):
             secret_key = config["secret_key"]
             logger.debug("Amazon SQS Destination Config Check - secret_key (ends with): " + secret_key[-1])
 
+            # If not specified, `None` will cause boto3 to use the default endpoint
+            endpoint_url = config.get("endpoint_url")
+            logger.debug("Amazon SQS Destination Config Check - endpoint_url: " + endpoint_url if endpoint_url else "default endpoint")
+
             logger.debug("Amazon SQS Destination Config Check - Starting connection test ---")
             session = boto3.Session(aws_access_key_id=access_key, aws_secret_access_key=secret_key, region_name=queue_region)
-            sqs = session.resource("sqs")
+            sqs = session.resource("sqs", endpoint_url=endpoint_url)
             queue = sqs.Queue(url=queue_url)
             if hasattr(queue, "attributes"):
                 logger.debug("Amazon SQS Destination Config Check - Connection test successful ---")

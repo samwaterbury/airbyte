@@ -74,24 +74,35 @@
         "order": 4,
         "airbyte_secret": true
       },
+      "endpoint_url": {
+        "title": "AWS Endpoint URL",
+        "description": "The URL of the AWS endpoint to use. Usually this can be left unspecified, in which case it defaults to the standard public AWS endpoint.",
+        "type": "string",
+        "examples": [
+          "https://sqs.us-west-2.amazonaws.com",
+          "http://127.0.0.1:4566",
+          "http://localhost.localstack.cloud:4566"
+        ],
+        "order": 5
+      },
       "message_body_key": {
         "title": "Message Body Key",
         "description": "Use this property to extract the contents of the named key in the input record to use as the SQS message body. If not set, the entire content of the input record data is used as the message body.",
         "type": "string",
         "examples": ["myDataPath"],
-        "order": 5
+        "order": 6
       },
       "message_group_id": {
         "title": "Message Group Id",
         "description": "The tag that specifies that a message belongs to a specific message group. This parameter applies only to, and is REQUIRED by, FIFO queues.",
         "type": "string",
         "examples": ["my-fifo-group"],
-        "order": 6
+        "order": 7
       },
       "message_metadata": {
         "title": "Message Metadata",
         "description": "Custom message attributes to be attached to all messages sent to the queue.",
-        "order": 7,
+        "order": 8,
         "type": "array",
         "items": {
           "title": "MessageAttribute",
